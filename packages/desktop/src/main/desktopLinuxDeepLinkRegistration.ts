@@ -12,6 +12,7 @@ const LINUX_DEEP_LINK_DESKTOP_FILE = "zcode.desktop";
 const LINUX_DEEP_LINK_MIME_TYPE = "x-scheme-handler/zcode";
 // 归属标记：用于识别用户级 zcode.desktop 是否由本应用写入（历史所有版本都带这行 Comment）。
 const LINUX_DESKTOP_ENTRY_OWNERSHIP_MARKER = "Comment=灵动Code Desktop App";
+const LEGACY_LINUX_DESKTOP_ENTRY_OWNERSHIP_MARKER = "Comment=ZCode Desktop App";
 
 type LinuxDesktopEnv = {
   APPIMAGE?: string;
@@ -172,9 +173,13 @@ function isOwnedDesktopEntry(path: string): boolean {
     const content = readFileSync(path, "utf8");
     // 去掉 \r 与行首尾空白，兼容 CRLF 行尾或手工编辑器引入的额外空白，
     // 避免可清理的遗留条目被误判为用户自定义条目而永久残留。
-    return content
-      .split("\n")
-      .some((line) => line.replaceAll("\r", "").trim() === LINUX_DESKTOP_ENTRY_OWNERSHIP_MARKER);
+    return content.split("\n").some((line) => {
+      const normalized = line.replaceAll("\r", "").trim();
+      return (
+        normalized === LINUX_DESKTOP_ENTRY_OWNERSHIP_MARKER ||
+        normalized === LEGACY_LINUX_DESKTOP_ENTRY_OWNERSHIP_MARKER
+      );
+    });
   } catch {
     return false;
   }

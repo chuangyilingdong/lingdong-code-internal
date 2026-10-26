@@ -502,7 +502,7 @@ describe("appARMSBootstrap beforeReport", () => {
     },
     {
       runtime: "local development",
-      applicationName: "ZCode Dev",
+      applicationName: "灵动Code Dev",
       executableName: "Electron",
     },
   ])(

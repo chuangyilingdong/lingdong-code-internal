@@ -25,10 +25,10 @@ describe("desktop product identity", () => {
   it("ZCODE_ENV=test 使用可与生产版并排安装的 Preview 身份", () => {
     expect(resolveDesktopProductIdentity({ ZCODE_ENV: "test" })).toEqual({
       flavor: "preview",
-      appId: "dev.zcode.app.preview",
-      productName: "ZCode Preview",
-      linuxExecutableName: "zcode-preview",
-      linuxPackageName: "zcode-preview",
+      appId: "cn.aicyld.lingdongcode.preview",
+      productName: "灵动Code Preview",
+      linuxExecutableName: "lingdong-code-preview",
+      linuxPackageName: "lingdong-code-preview",
       cuaHelperInstallVariant: "preview",
     });
   });
@@ -80,10 +80,10 @@ describe("desktop product identity", () => {
     );
     expect(desktopProductIdentities.production).toEqual({
       flavor: "production",
-      appId: "dev.zcode.app",
-      productName: "ZCode",
-      linuxExecutableName: "zcode",
-      linuxPackageName: "zcode",
+      appId: "cn.aicyld.lingdongcode",
+      productName: "灵动Code",
+      linuxExecutableName: "lingdong-code",
+      linuxPackageName: "lingdong-code",
       cuaHelperInstallVariant: null,
     });
   });
@@ -113,6 +113,6 @@ describe("desktop product identity", () => {
   });
 
   it("开发态继续使用独立 AUMID，避免污染打包版 Shell 身份", () => {
-    expect(resolveWindowsAppUserModelId({}, { isPackaged: false })).toBe("cn.aminer.zcode");
+    expect(resolveWindowsAppUserModelId({}, { isPackaged: false })).toBe("cn.aicyld.lingdongcode.dev");
   });
 });
