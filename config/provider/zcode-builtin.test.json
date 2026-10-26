@@ -737,6 +737,7 @@
           "providerName": "Z.AI Individual Coding Plan",
           "config": {
             "group": "zai-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
             "access": {
               "type": "zhipu-account",
@@ -758,6 +759,7 @@
           "providerName": "Z.AI Team Coding Plan",
           "config": {
             "group": "zai-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
             "access": {
               "type": "zhipu-account",
@@ -779,6 +781,7 @@
           "providerName": "Start Plan",
           "config": {
             "group": "zai-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3-Flash", "GLM-5.2", "GLM-5-Turbo"],
             "access": {
               "type": "zhipu-account",
@@ -800,6 +803,7 @@
           "providerName": "BigModel Individual Coding Plan",
           "config": {
             "group": "bigmodel-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
             "access": {
               "type": "zhipu-account",
@@ -821,6 +825,7 @@
           "providerName": "BigModel Team Coding Plan",
           "config": {
             "group": "bigmodel-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
             "access": {
               "type": "zhipu-account",
@@ -842,6 +847,7 @@
           "providerName": "Start Plan",
           "config": {
             "group": "bigmodel-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3-Flash", "GLM-5.2", "GLM-5-Turbo"],
             "access": {
               "type": "zhipu-account",
@@ -863,6 +869,7 @@
           "providerName": "Z.AI Idle plan",
           "config": {
             "group": "zai-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
             "visibility": "hidden",
             "access": {
@@ -885,6 +892,7 @@
           "providerName": "BigModel Idle plan",
           "config": {
             "group": "bigmodel-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
             "visibility": "hidden",
             "access": {
@@ -907,6 +915,7 @@
           "providerName": "Z.AI Highspeed card",
           "config": {
             "group": "zai-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
             "visibility": "hidden",
             "access": {
@@ -929,6 +938,7 @@
           "providerName": "BigModel Highspeed card",
           "config": {
             "group": "bigmodel-family",
+            "visibility": "hidden",
             "builtinModelIds": ["GLM-5.3", "GLM-5.3-Flash"],
             "visibility": "hidden",
             "access": {

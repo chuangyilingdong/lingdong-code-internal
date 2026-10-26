@@ -662,8 +662,7 @@ function createProviderSettingsView(input: {
     });
   };
   const visibleProviders = input.resolution.resolvedProviders.filter(
-    (provider) =>
-      provider.config.visibility !== "hidden" && provider.config.access?.type !== "zhipu-account",
+    (provider) => provider.config.visibility !== "hidden",
   );
   const configuredProviders = visibleProviders;
   return Object.freeze({
@@ -671,7 +670,6 @@ function createProviderSettingsView(input: {
     providerTemplates: Object.freeze(
       (input.zcodeBuiltinProviderTemplates ?? ProviderTemplateMap.empty())
         .entries()
-        .filter(([templateId]) => templateId !== "zai-api" && templateId !== "bigmodel-api")
         .map(([templateId, template]) =>
           Object.freeze({
             templateId,
