@@ -4,6 +4,7 @@ dist/
 dist-release/
 # Bugfix: macOS CI 按架构隔离 electron-builder 输出目录，这些仍是构建产物。
 packages/desktop/dist-*/
+packages/desktop/update-feed/
 out/
 prebuilds/
 bundled-resources/
