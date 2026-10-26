@@ -44,6 +44,7 @@ export async function resolveBuildTimeConfig(
     autoUpdateEnabled: ENABLED_VALUES.has(
       pickValue(env, defaults, "ZCODE_AUTO_UPDATE").toLowerCase(),
     ),
+    updateFeedUrl: pickValue(env, defaults, "ZCODE_UPDATE_FEED_URL"),
   };
 }
 
@@ -52,5 +53,6 @@ export function createBuildTimeConfigDefines(config) {
     __ZCODE_ARMS_RUM_ENDPOINT__: JSON.stringify(config.armsRumEndpoint),
     __ZCODE_TELEMETRY_REPORT_ENDPOINT__: JSON.stringify(config.telemetryReportEndpoint),
     __ZCODE_AUTO_UPDATE_ENABLED__: JSON.stringify(config.autoUpdateEnabled),
+    __ZCODE_UPDATE_FEED_URL__: JSON.stringify(config.updateFeedUrl),
   };
 }

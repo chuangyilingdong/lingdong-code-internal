@@ -748,6 +748,27 @@ describe("autoUpdater ready state sync", () => {
     });
   });
 
+  it("运行时未覆盖时使用构建期默认 update feed URL", async () => {
+    const { resolveUpdateFeedSourceFromStartupConfig } = await import("../src/main/autoUpdater.js");
+
+    expect(
+      resolveUpdateFeedSourceFromStartupConfig({
+        argv: ["ZCode"],
+        env: {},
+        buildDefaultUrl: "https://build.example.test/api/v1/releases/electron/manifest",
+      }),
+    ).toEqual({
+      url: "https://build.example.test/api/v1/releases/electron/manifest",
+    });
+    expect(
+      resolveUpdateFeedSourceFromStartupConfig({
+        argv: ["ZCode"],
+        env: { ZCODE_UPDATE_FEED_URL: "" },
+        buildDefaultUrl: "https://build.example.test/api/v1/releases/electron/manifest",
+      }),
+    ).toBeUndefined();
+  });
+
   it("启动时可覆盖服务端 manifest 接口 URL", async () => {
     mockProcessPlatform("darwin");
     process.env["TEST_UPDATER_ARCH"] = "arm64";
@@ -762,8 +783,7 @@ describe("autoUpdater ready state sync", () => {
     expect(autoUpdaterMock.setFeedURL).toHaveBeenCalledWith(
       expect.objectContaining({
         provider: "custom",
-        manifestUrl:
-          "https://zcode.z.ai/api/v1/releases/electron/manifest?platform=old&channel=1",
+        manifestUrl: "https://zcode.z.ai/api/v1/releases/electron/manifest?platform=old&channel=1",
         releasePlatform: "darwin-aarch64",
       }),
     );

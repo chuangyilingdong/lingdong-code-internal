@@ -11,6 +11,7 @@ declare const __ZCODE_PRODUCT_FLAVOR__: string;
 declare const __ZCODE_ARMS_RUM_ENDPOINT__: string;
 declare const __ZCODE_TELEMETRY_REPORT_ENDPOINT__: string;
 declare const __ZCODE_AUTO_UPDATE_ENABLED__: boolean;
+declare const __ZCODE_UPDATE_FEED_URL__: string;
 
 export function normalizeZCodeEnv(value: string | undefined): ZCodeEnv {
   return value?.trim().toLowerCase() === "production" ? "production" : "test";
@@ -60,6 +61,9 @@ export const ZCODE_TELEMETRY_REPORT_ENDPOINT: string =
 /** 桌面自动更新是否启用。 */
 export const ZCODE_AUTO_UPDATE_ENABLED: boolean =
   typeof __ZCODE_AUTO_UPDATE_ENABLED__ !== "undefined" ? __ZCODE_AUTO_UPDATE_ENABLED__ : false;
+/** 构建期默认更新 manifest URL；运行时参数或环境变量可以覆盖。 */
+export const ZCODE_BUILD_UPDATE_FEED_URL: string =
+  typeof __ZCODE_UPDATE_FEED_URL__ !== "undefined" ? __ZCODE_UPDATE_FEED_URL__ : "";
 
 /** 将本地运行态与编译期 ZCODE_ENV 映射为 ARMS 控制台识别的上报环境标签 */
 export function mapZCodeEnvToArmsRumEnv(runtimeEnv: ZCodeRuntimeEnv): ArmsRumEnv {

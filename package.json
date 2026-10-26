@@ -1,7 +1,8 @@
 {
   "name": "lingdong-code",
-  "version": "3.16.2",
+  "version": "3.17.0",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "scripts": {
     "dev:web": "concurrently -k -n server,web -c blue,green \"pnpm --filter @zcode/server dev\" \"pnpm --filter @zcode/web dev\"",
@@ -19,6 +20,7 @@
     "dev:official-mcp": "node scripts/dev-official-mcp-server.mjs",
     "prepare": "husky && pnpm build:cua",
     "prepare:desktop-runtime": "pnpm --filter @zcode/desktop prepare:runtime-assets",
+    "prepare:lingdong-update-feed": "node scripts/prepare-lingdong-code-update-feed.mjs",
     "dep:graph": "node scripts/dependency-graph.mjs",
     "dep:refs": "node scripts/dep-refs.mjs",
     "audit:agent-remnants": "node scripts/audit-zcode-agent-remnants.mjs",
@@ -128,6 +130,5 @@
       "@ai-sdk/openai-compatible@2.0.60": "patches/@ai-sdk__openai-compatible@2.0.60.patch",
       "@ai-sdk/anthropic@3.0.81": "patches/@ai-sdk__anthropic@3.0.81.patch"
     }
-  },
-  "license": "Apache-2.0"
+  }
 }

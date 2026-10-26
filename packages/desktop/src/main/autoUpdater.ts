@@ -8,6 +8,7 @@ import {
   DEFAULT_LOCALE,
   DEFAULT_ZCODE_ENDPOINT_ORIGIN,
   PlatformChannels,
+  ZCODE_BUILD_UPDATE_FEED_URL,
   ZCODE_VERSION,
   desktopMenuMessageIds,
   formatDesktopMenuMessage,
@@ -762,11 +763,15 @@ export function resolveUpdateFeedSourceFromStartupConfig(
   options: {
     argv?: readonly string[];
     env?: Record<string, string | undefined>;
+    buildDefaultUrl?: string;
   } = {},
 ): RuntimeUpdateFeedSource | undefined {
   const argv = options.argv ?? process.argv;
   const env = options.env ?? process.env;
-  const feedUrl = readSwitchValue(argv, UPDATE_FEED_URL_SWITCH) ?? env[UPDATE_FEED_URL_ENV]?.trim();
+  const feedUrl =
+    readSwitchValue(argv, UPDATE_FEED_URL_SWITCH) ??
+    env[UPDATE_FEED_URL_ENV]?.trim() ??
+    (options.buildDefaultUrl ?? ZCODE_BUILD_UPDATE_FEED_URL).trim();
   return feedUrl
     ? {
         url: feedUrl,

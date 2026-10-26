@@ -21,6 +21,7 @@ test("没有私有默认配置也没有环境变量时三项能力都关闭", as
     armsRumEndpoint: "",
     telemetryReportEndpoint: "",
     autoUpdateEnabled: false,
+    updateFeedUrl: "",
   });
 });
 
@@ -29,11 +30,13 @@ test("私有默认配置启用三项能力", async () => {
     ZCODE_ARMS_RUM_ENDPOINT: " https://rum.example.com/x ",
     ZCODE_TELEMETRY_REPORT_ENDPOINT: "https://report.example.com/event",
     ZCODE_AUTO_UPDATE: "1",
+    ZCODE_UPDATE_FEED_URL: "https://cdn.example.com/latest.yml",
   });
   assert.deepEqual(await resolveBuildTimeConfig({}, { defaultsPath }), {
     armsRumEndpoint: "https://rum.example.com/x",
     telemetryReportEndpoint: "https://report.example.com/event",
     autoUpdateEnabled: true,
+    updateFeedUrl: "https://cdn.example.com/latest.yml",
   });
 });
 
@@ -42,12 +45,14 @@ test("环境变量优先于私有默认配置，显式空字符串关闭单项�
     ZCODE_ARMS_RUM_ENDPOINT: "https://rum.example.com/x",
     ZCODE_TELEMETRY_REPORT_ENDPOINT: "https://report.example.com/event",
     ZCODE_AUTO_UPDATE: "true",
+    ZCODE_UPDATE_FEED_URL: "https://defaults.example.com/latest.yml",
   });
   const config = await resolveBuildTimeConfig(
     {
       ZCODE_ARMS_RUM_ENDPOINT: "",
       ZCODE_TELEMETRY_REPORT_ENDPOINT: "https://other.example.com/event",
       ZCODE_AUTO_UPDATE: "0",
+      ZCODE_UPDATE_FEED_URL: "https://override.example.com/latest.yml",
     },
     { defaultsPath },
   );
@@ -55,6 +60,7 @@ test("环境变量优先于私有默认配置，显式空字符串关闭单项�
     armsRumEndpoint: "",
     telemetryReportEndpoint: "https://other.example.com/event",
     autoUpdateEnabled: false,
+    updateFeedUrl: "https://override.example.com/latest.yml",
   });
 });
 
@@ -69,11 +75,13 @@ test("define 以 JSON 字面量注入", () => {
       armsRumEndpoint: "https://rum.example.com/x",
       telemetryReportEndpoint: "",
       autoUpdateEnabled: true,
+      updateFeedUrl: "https://cdn.example.com/latest.yml",
     }),
     {
       __ZCODE_ARMS_RUM_ENDPOINT__: '"https://rum.example.com/x"',
       __ZCODE_TELEMETRY_REPORT_ENDPOINT__: '""',
       __ZCODE_AUTO_UPDATE_ENABLED__: "true",
+      __ZCODE_UPDATE_FEED_URL__: '"https://cdn.example.com/latest.yml"',
     },
   );
 });

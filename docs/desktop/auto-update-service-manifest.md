@@ -110,7 +110,7 @@ skippedElectronUpdateVersions?: Partial<Record<"stable" | "preview", string>>;
 ## 兼容与迁移
 
 - 旧安装包若仍按包内 `app-update.yml` 从 CDN stable feed 检查更新，不再由当前 CI 全量阶段自动刷新对应 feed。需要兼容旧包时，应由服务端 manifest 迁移策略、单独的应急发布动作或旧 feed 运维流程承接，避免把新 release 状态再次绑定到 CI 的静态 feed 覆盖。
-- 新安装包默认使用服务端 manifest provider；`ZCODE_UPDATE_FEED_URL` 保留为诊断/应急覆盖入口，值必须是完整 manifest 接口 URL。显式配置时仍走服务端 manifest provider，并由客户端覆盖 `platform` / `device_mid` / `channel` 查询参数和对应 header，不再切换到旧 generic feed。
+- 新安装包默认使用服务端 manifest provider；`ZCODE_UPDATE_FEED_URL` 可构建期写入默认完整 manifest URL，运行时启动参数或环境变量仍可覆盖。显式配置时仍走服务端 manifest provider，并由客户端覆盖 `platform` / `device_mid` / `channel` 查询参数和对应 header，不再切换到旧 generic feed。
 - post-update release notes、已下载待安装状态和 Windows 安装前资源释放逻辑继续沿用现有实现。
 - Windows 从 `quitAndInstall()` 到 NSIS 的进程退出、快捷方式和完成页启动边界见
   `docs/desktop/windows-update-install-handoff.md`。

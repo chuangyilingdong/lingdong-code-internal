@@ -2,13 +2,14 @@
 
 ## 目标
 
-三项能力由构建期配置决定是否启用，未配置时一律关闭：
+以下能力由构建期配置决定是否启用，未配置时一律关闭：
 
-| 能力 | 配置项 | 关闭时的行为 |
-| --- | --- | --- |
-| ARMS RUM 上报 | `ZCODE_ARMS_RUM_ENDPOINT` | 主进程与渲染进程的 ARMS SDK 以 `enable: false` 初始化，不产生上报 |
-| 事件上报（数仓） | `ZCODE_TELEMETRY_REPORT_ENDPOINT` | 遥测事件在发送前直接返回 |
-| 自动更新 | `ZCODE_AUTO_UPDATE`（`1`、`true`、`yes` 为启用） | 与 Preview 形态相同，不检查、不下载更新 |
+| 能力             | 配置项                                           | 关闭时的行为                                                      |
+| ---------------- | ------------------------------------------------ | ----------------------------------------------------------------- |
+| ARMS RUM 上报    | `ZCODE_ARMS_RUM_ENDPOINT`                        | 主进程与渲染进程的 ARMS SDK 以 `enable: false` 初始化，不产生上报 |
+| 事件上报（数仓） | `ZCODE_TELEMETRY_REPORT_ENDPOINT`                | 遥测事件在发送前直接返回                                          |
+| 自动更新         | `ZCODE_AUTO_UPDATE`（`1`、`true`、`yes` 为启用） | 与 Preview 形态相同，不检查、不下载更新                           |
+| 默认更新 Feed    | `ZCODE_UPDATE_FEED_URL`                          | 使用客户端默认 endpoint origin；不写死外部 feed                   |
 
 这样同一份源码可以产出“默认不上报、不自动更新”的构建，也可以产出启用这些能力的正式构建，
 不需要在源码里写死上报地址。
@@ -18,6 +19,8 @@
 1. 构建进程的环境变量。显式设置为空字符串表示关闭。
 2. `config/private/build-defaults.json`。只存在于内部仓库，开源导出不包含。
 3. 以上都没有时关闭。
+
+`ZCODE_UPDATE_FEED_URL` 是构建期默认值，必须是完整的 manifest 接口 URL。运行时优先级为：启动参数 `--zcode-update-feed-url` > 环境变量 `ZCODE_UPDATE_FEED_URL` > 构建期默认值。
 
 ## 所有者与数据流
 
