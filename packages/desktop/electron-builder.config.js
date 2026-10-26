@@ -2,7 +2,7 @@
 import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { HELPER_APP_NAME } from "@zcode/zcode-cua/broker/helperConstants";
 import { runCommand, runCommandAndReadStdout } from "../../scripts/spawn-command.mjs";
@@ -400,7 +400,13 @@ async function injectHoistedRuntimeModulesIntoAsar(context) {
         // 所以在 afterPack 阶段直接重写 app.asar，先把这些运行时包补进去，再交给后续签名和出包。
         mkdirSync(dirname(targetModulePath), { recursive: true });
         rmSync(targetModulePath, { force: true, recursive: true });
-        cpSync(sourceModulePath, targetModulePath, { recursive: true });
+        // Bugfix: Windows 下 pnpm 包内 node_modules 可能含指向工作区的 junction，
+        // cpSync 递归跟随会触发原生崩溃（0xC0000409），目标目录只留下空壳。
+        // 运行时依赖闭包已由外层逐个复制到 staging/node_modules，这里排除嵌套 node_modules。
+        cpSync(sourceModulePath, targetModulePath, {
+          recursive: true,
+          filter: (sourcePath) => basename(sourcePath) !== "node_modules",
+        });
       }
     });
 
