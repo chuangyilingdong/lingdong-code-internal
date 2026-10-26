@@ -2,12 +2,15 @@
 import { randomBytes } from "node:crypto";
 import { Emitter } from "@zcode/rpc";
 import {
+  AICYLD_PROVIDER_ID,
   ApiError,
   formatLogPrefix,
   type ApiClient,
   BIGMODEL_PROVIDER_ID,
   ZAI_PROVIDER_ID,
   type OAuthCallbackResult,
+  type AicyldPointsWallet,
+  type AicyldSmsSendResult,
   type OAuthCachedSessionRestoreResult,
   type OAuthProviderId,
   type OAuthProviderMeta,
@@ -73,6 +76,11 @@ interface OAuthServiceDependencies {
   now?: () => number;
   env?: NodeJS.ProcessEnv;
   onProviderLogout?: (provider: OAuthProviderId, accountIdentity?: string | null) => Promise<void>;
+  onProviderLogin?: (
+    provider: OAuthProviderId,
+    tokenSet: OAuthTokenSet,
+    profile: OAuthUserProfile,
+  ) => Promise<void>;
 }
 
 function readTrimmedString(value: unknown): string | null {
@@ -128,6 +136,11 @@ export class OAuthService implements IOAuthService {
     provider: OAuthProviderId,
     accountIdentity?: string | null,
   ) => Promise<void>;
+  private readonly onProviderLogin?: (
+    provider: OAuthProviderId,
+    tokenSet: OAuthTokenSet,
+    profile: OAuthUserProfile,
+  ) => Promise<void>;
   private readonly apiClient?: ApiClient;
   private readonly env: NodeJS.ProcessEnv;
   private pendingState: PendingState | null = null;
@@ -146,6 +159,7 @@ export class OAuthService implements IOAuthService {
     this.credentialService = credentialService;
     this.now = dependencies.now ?? Date.now;
     this.onProviderLogout = dependencies.onProviderLogout;
+    this.onProviderLogin = dependencies.onProviderLogin;
     this.apiClient = dependencies.apiClient;
     this.env = dependencies.env ?? process.env;
 
@@ -178,6 +192,40 @@ export class OAuthService implements IOAuthService {
 
   async getActiveProvider(): Promise<OAuthProviderId | null> {
     return this.repo.getActiveProvider();
+  }
+
+  async sendAicyldSms(phone: string): Promise<AicyldSmsSendResult> {
+    const normalizedPhone = phone.trim();
+    if (!/^1[3-9]\d{9}$/u.test(normalizedPhone)) {
+      throw new Error("请输入正确的手机号");
+    }
+    const adapter = this.getEnabledAdapter(AICYLD_PROVIDER_ID);
+    if (!adapter.sendLoginSms) throw new Error("AICYLD 登录适配器不可用");
+    return this.runWithAdapterError(adapter, () => adapter.sendLoginSms!(normalizedPhone));
+  }
+
+  async loginAicyldWithSms(phone: string, code: string): Promise<UserInfo> {
+    const normalizedPhone = phone.trim();
+    const normalizedCode = code.trim();
+    if (!/^1[3-9]\d{9}$/u.test(normalizedPhone)) throw new Error("请输入正确的手机号");
+    if (!normalizedCode) throw new Error("请输入验证码");
+    const adapter = this.getEnabledAdapter(AICYLD_PROVIDER_ID);
+    if (!adapter.loginWithSms) throw new Error("AICYLD 登录适配器不可用");
+    const { tokenSet, profile } = await this.runWithAdapterError(adapter, () =>
+      adapter.loginWithSms!(normalizedPhone, normalizedCode),
+    );
+    await this.persistOAuthSession(AICYLD_PROVIDER_ID, tokenSet, profile);
+    return toUserInfo(profile);
+  }
+
+  async getAicyldWallet(): Promise<AicyldPointsWallet | null> {
+    const activeProvider = await this.repo.getActiveProvider();
+    if (activeProvider !== AICYLD_PROVIDER_ID) return null;
+    const tokenSet = await this.repo.loadActiveTokenSet();
+    if (!tokenSet) return null;
+    const adapter = this.getEnabledAdapter(AICYLD_PROVIDER_ID);
+    if (!adapter.fetchWallet) return null;
+    return this.runWithAdapterError(adapter, () => adapter.fetchWallet!(tokenSet));
   }
 
   async restoreCachedSession(): Promise<UserInfo | null> {
@@ -466,6 +514,7 @@ export class OAuthService implements IOAuthService {
       await rollback();
       throw new Error("OAuth flow 已取消");
     }
+    await this.notifyProviderLogin(provider, tokenSet, profile);
     // 凭据是认证事实源；同账号重登也必须通知，不能等 renderer 的设置更新或成功计数。
     this.sessionChanges.fire("signed-in");
   }
@@ -1156,6 +1205,20 @@ export class OAuthService implements IOAuthService {
     }
 
     await this.onProviderLogout(provider, accountIdentity);
+  }
+
+  private async notifyProviderLogin(
+    provider: OAuthProviderId,
+    tokenSet: OAuthTokenSet,
+    profile: OAuthUserProfile,
+  ): Promise<void> {
+    if (!this.onProviderLogin) return;
+    try {
+      await this.onProviderLogin(provider, tokenSet, profile);
+    } catch (error) {
+      // 认证事实已经落盘；Provider 自动配置失败不能反向清掉刚建立的账号会话。
+      serviceLog.warn("Provider login side effect failed", { provider, error });
+    }
   }
 
   private async notifyProvidersLogout(

@@ -41,6 +41,7 @@ import {
   resolveAgentSessionDbPath,
 } from "./onboarding/localUsageEvidence.js";
 import {
+  AICYLD_PROVIDER_ID,
   buildLocalMediaPreviewUrl,
   type DynamicWorkflowMode,
   type ProviderProvisioningTrigger,
@@ -455,6 +456,7 @@ import { resolveAccountTeamPlanRuntimeMaterial } from "./model-provider/accountP
 import { createAccountProviderCredentialStore } from "./model-provider/accountProviderCredentialStore.js";
 import { createAccountProviderCredentialService } from "./model-provider/accountProviderCredentialService.js";
 import { createAccountProviderRequestAuthService } from "./model-provider/accountProviderRequestAuthService.js";
+import { syncAicyldCodeProvider } from "./aicyld-code-provider/index.js";
 import {
   createAccountProviderConfigSource,
   createCodingPlanFamilyAvailabilityResolver,
@@ -2548,7 +2550,27 @@ export function createLocalServices(options: {
     : undefined;
   const oauthService = createOAuthService(credentialService, {
     apiClient,
-    onProviderLogout: handleOAuthProviderLogout,
+    onProviderLogout: async (provider, accountIdentity) => {
+      if (provider === AICYLD_PROVIDER_ID) {
+        await providerRuntime.start();
+        await syncAicyldCodeProvider({
+          settings: providerRuntime.providerSettings,
+          accessToken: null,
+          enabled: false,
+        });
+        return;
+      }
+      await handleOAuthProviderLogout?.(provider, accountIdentity);
+    },
+    onProviderLogin: async (provider, tokenSet) => {
+      if (provider !== AICYLD_PROVIDER_ID) return;
+      await providerRuntime.start();
+      await syncAicyldCodeProvider({
+        settings: providerRuntime.providerSettings,
+        accessToken: tokenSet.accessToken,
+        enabled: true,
+      });
+    },
   });
   const zcodeJwtLogoutLogger = createServiceLogger("zcode-jwt-logout");
   zcodeJwtLogoutHandlerRef.current = (input, headers) => {

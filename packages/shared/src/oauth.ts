@@ -11,6 +11,9 @@ export const BIGMODEL_PROVIDER_ID = "bigmodel" as const;
 /** 内置 ZAI provider id */
 export const ZAI_PROVIDER_ID = "zai" as const;
 
+/** AICYLD 主站账号 provider id */
+export const AICYLD_PROVIDER_ID = "aicyld" as const;
+
 /** 凭据解密失败错误前缀 */
 export const CREDENTIAL_DECRYPT_ERROR_PREFIX = "凭据解密失败：" as const;
 
@@ -56,6 +59,7 @@ function readCredentialErrorMessage(error: unknown): string {
 export type OAuthProviderId =
   | typeof BIGMODEL_PROVIDER_ID
   | typeof ZAI_PROVIDER_ID
+  | typeof AICYLD_PROVIDER_ID
   | (string & { readonly __oauthProviderBrand?: never });
 
 /** Provider 展示元信息 */
@@ -142,6 +146,18 @@ export interface UserInfo {
   username: string;
   displayName: string;
   avatarUrl?: string;
+}
+
+export interface AicyldSmsSendResult {
+  cooldown: number;
+  expiresIn: number;
+}
+
+export interface AicyldPointsWallet {
+  total: number;
+  free: number;
+  subscription: number;
+  paid: number;
 }
 
 export type OAuthCachedSessionRestoreResult =

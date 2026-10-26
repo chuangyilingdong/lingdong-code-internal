@@ -1,4 +1,6 @@
 import type {
+  AicyldPointsWallet,
+  AicyldSmsSendResult,
   ApiClient,
   OAuthCallbackParams,
   OAuthProviderId,
@@ -36,4 +38,12 @@ export interface OAuthProviderAdapter {
   ): Promise<OAuthTokenSet | null>;
 
   normalizeError(error: unknown): Error;
+
+  /** AICYLD 等自有账号体系的短信登录扩展；OAuth provider 不实现。 */
+  sendLoginSms?(phone: string): Promise<AicyldSmsSendResult>;
+  loginWithSms?(
+    phone: string,
+    code: string,
+  ): Promise<{ tokenSet: OAuthTokenSet; profile: OAuthUserProfile }>;
+  fetchWallet?(tokenSet: OAuthTokenSet): Promise<AicyldPointsWallet>;
 }

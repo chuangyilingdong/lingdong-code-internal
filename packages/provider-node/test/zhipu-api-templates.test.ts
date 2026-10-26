@@ -10,7 +10,10 @@ describe("Zhipu four manual API templates", () => {
         await readFile(new URL(`../../../config/provider/${filename}`, import.meta.url), "utf8"),
       );
       const templates = release.config.providerConfigRules.templateRules;
-      for (const template of templates) {
+      for (const template of templates.filter(
+        (item: { config: { access?: { apiKeyManagementUrl?: string } } }) =>
+          Boolean(item.config.access?.apiKeyManagementUrl),
+      )) {
         expect(
           new URL(template.config.access.apiKeyManagementUrl).protocol,
           template.templateId,

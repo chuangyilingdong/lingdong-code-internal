@@ -7,19 +7,19 @@ export const ZCODE_PREVIEW_IDENTITY_ENV = "ZCODE_PREVIEW_IDENTITY";
 
 const PRODUCTION_IDENTITY = Object.freeze({
   flavor: "production",
-  appId: "dev.zcode.app",
-  productName: "ZCode",
-  linuxExecutableName: "zcode",
-  linuxPackageName: "zcode",
+  appId: "cn.aicyld.lingdongcode",
+  productName: "灵动Code",
+  linuxExecutableName: "lingdong-code",
+  linuxPackageName: "lingdong-code",
   cuaHelperInstallVariant: null,
 });
 
 const PREVIEW_IDENTITY = Object.freeze({
   flavor: "preview",
-  appId: "dev.zcode.app.preview",
-  productName: "ZCode Preview",
-  linuxExecutableName: "zcode-preview",
-  linuxPackageName: "zcode-preview",
+  appId: "cn.aicyld.lingdongcode.preview",
+  productName: "灵动Code Preview",
+  linuxExecutableName: "lingdong-code-preview",
+  linuxPackageName: "lingdong-code-preview",
   cuaHelperInstallVariant: "preview",
 });
 

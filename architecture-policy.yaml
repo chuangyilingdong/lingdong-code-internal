@@ -67,6 +67,46 @@ modules:
   - id: zcode-cli
     roots: [apps/zcode-cli]
     managed: false
+  - id: aicyld-code-provider
+    roots: [packages/services/src/aicyld-code-provider]
+    managed: true
+    requires: [provider]
+    publicEntrypoints:
+      - packages/services/src/aicyld-code-provider/index.ts
+      - packages/services/src/aicyld-code-provider/contract.ts
+    layers:
+      app: "."
+    owner: aicyld
+  - id: aicyld-oauth-adapter
+    roots: [packages/services/src/aicyld-oauth-adapter]
+    managed: true
+    requires: [services, shared]
+    publicEntrypoints:
+      - packages/services/src/aicyld-oauth-adapter/index.ts
+      - packages/services/src/aicyld-oauth-adapter/contract.ts
+    layers:
+      adapters: "."
+    owner: aicyld
+  - id: aicyld-oauth-config
+    roots: [packages/services/src/aicyld-oauth-config]
+    managed: true
+    requires: [services, shared]
+    publicEntrypoints:
+      - packages/services/src/aicyld-oauth-config/index.ts
+      - packages/services/src/aicyld-oauth-config/contract.ts
+    layers:
+      app: "."
+    owner: aicyld
+  - id: aicyld-wallet
+    roots: [packages/ui/src/aicyld-wallet]
+    managed: true
+    requires: [shared, ui]
+    publicEntrypoints:
+      - packages/ui/src/aicyld-wallet/useAicyldWallet.ts
+      - packages/ui/src/aicyld-wallet/contract.ts
+    layers:
+      ui: "."
+    owner: aicyld
   # sqlite-migrations：由 architecture:adopt 登记
   - id: sqlite-migrations
     roots:

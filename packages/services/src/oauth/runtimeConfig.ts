@@ -1,6 +1,5 @@
 import type { OAuthProviderId } from "@zcode/shared";
-import { createBigModelProviderRuntimeConfig } from "./providers/bigmodelProviderConfig.js";
-import { createZaiProviderRuntimeConfig } from "./providers/zaiProviderConfig.js";
+import { createAicyldProviderRuntimeConfig } from "../aicyld-oauth-config/index.js";
 
 /** Provider 运行时配置（仅 host process 可见） */
 export interface OAuthProviderRuntimeConfig {
@@ -15,6 +14,7 @@ export interface OAuthProviderRuntimeConfig {
   redirectUri: string;
   businessLoginUrl?: string;
   appSecret?: string;
+  baseApiUrl?: string;
 }
 
 /** OAuth 全局运行时配置 */
@@ -29,6 +29,6 @@ export interface OAuthRuntimeConfig {
  */
 export function createOAuthRuntimeConfig(env: NodeJS.ProcessEnv = process.env): OAuthRuntimeConfig {
   return {
-    providers: [createBigModelProviderRuntimeConfig(env), createZaiProviderRuntimeConfig(env)],
+    providers: [createAicyldProviderRuntimeConfig(env)],
   };
 }

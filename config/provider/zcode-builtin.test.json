@@ -1,9 +1,30 @@
 {
   "schemaVersion": 1,
-  "revision": 33,
+  "revision": 34,
   "config": {
     "providerConfigRules": {
       "templateRules": [
+        {
+          "templateId": "aicyld-code",
+          "templateNameMap": {
+            "zh-CN": "AICYLD 灵动 Code",
+            "en-US": "AICYLD Lingdong Code"
+          },
+          "config": {
+            "access": {
+              "type": "api-key"
+            },
+            "api": {
+              "type": "openai-chat-completions",
+              "baseUrl": "https://www.aicyld.com.cn/api/lingdong-code/v1"
+            },
+            "builtinModelIds": ["lingdong-code"],
+            "logo": {
+              "type": "builtin",
+              "key": "aicyld"
+            }
+          }
+        },
         {
           "templateId": "zai-api",
           "templateNameMap": {
@@ -4459,6 +4480,13 @@
         }
       ],
       "templateModelRules": [
+        {
+          "templateId": "aicyld-code",
+          "modelId": "lingdong-code",
+          "config": {
+            "enabled": true
+          }
+        },
         {
           "templateId": "opencode-go-chat",
           "modelId": "glm-5.3-flash",

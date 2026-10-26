@@ -1,5 +1,6 @@
-import { BIGMODEL_PROVIDER_ID, ZAI_PROVIDER_ID, type ApiClient } from "@zcode/shared";
+import { AICYLD_PROVIDER_ID, BIGMODEL_PROVIDER_ID, ZAI_PROVIDER_ID, type ApiClient } from "@zcode/shared";
 import type { OAuthRuntimeConfig } from "../runtimeConfig.js";
+import { AicyldProviderAdapter } from "../../aicyld-oauth-adapter/index.js";
 import { BigModelProviderAdapter } from "./bigmodelProviderAdapter.js";
 import type { OAuthProviderAdapter } from "./providerAdapter.js";
 import { ZaiProviderAdapter } from "./zaiProviderAdapter.js";
@@ -19,6 +20,9 @@ export function createOAuthProviderAdapters(
 
   for (const providerConfig of config.providers) {
     switch (providerConfig.id) {
+      case AICYLD_PROVIDER_ID:
+        adapters.push(new AicyldProviderAdapter(providerConfig, apiClient));
+        break;
       case BIGMODEL_PROVIDER_ID:
         adapters.push(new BigModelProviderAdapter(providerConfig, apiClient));
         break;

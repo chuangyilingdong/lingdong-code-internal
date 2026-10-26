@@ -1,4 +1,6 @@
 import type {
+  AicyldPointsWallet,
+  AicyldSmsSendResult,
   OAuthCachedSessionRestoreResult,
   OAuthCallbackResult,
   OAuthProviderId,
@@ -75,6 +77,15 @@ export interface IOAuthService {
    * @param provider - 可选；不传时取消当前 pending
    */
   cancelPending(provider?: OAuthProviderId): Promise<void>;
+
+  /** 发送 AICYLD 手机号验证码。 */
+  sendAicyldSms(phone: string): Promise<AicyldSmsSendResult>;
+
+  /** 使用 AICYLD 手机号验证码建立应用登录态。 */
+  loginAicyldWithSms(phone: string, code: string): Promise<UserInfo>;
+
+  /** 读取当前 AICYLD 账号积分；未登录或非 AICYLD 会话时返回 null。 */
+  getAicyldWallet(): Promise<AicyldPointsWallet | null>;
 }
 
 export const IOAuthService = createServiceDescriptor<IOAuthService>(ServiceChannels.OAuth);

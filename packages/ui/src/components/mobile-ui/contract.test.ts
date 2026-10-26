@@ -18,7 +18,7 @@ describe("mobile presentation package boundary", () => {
     },
   );
   it("retains logo and accessible dialog trigger exports", () => {
-    expect(renderToStaticMarkup(createElement(ZCodeAppLogo))).toContain('data-app-logo="zcode"');
+    expect(renderToStaticMarkup(createElement(ZCodeAppLogo))).toContain('data-app-logo="lingdong-code"');
     expect(
       renderToStaticMarkup(
         createElement(BottomSheet, {}, createElement(BottomSheetTrigger, {}, "Choose")),

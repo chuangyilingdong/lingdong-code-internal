@@ -19,6 +19,7 @@ import openrouterLight from "@/assets/provider-icons/model-provider-openrouter-l
 import openrouterDark from "@/assets/provider-icons/model-provider-openrouter-dark.svg";
 import opencodeLight from "@/assets/provider-icons/model-provider-opencode-light.svg";
 import opencodeDark from "@/assets/provider-icons/model-provider-opencode-dark.svg";
+import aicyldLogo from "@/assets/provider-icons/logo-lingdong.svg";
 
 type ProviderLogoRef = NonNullable<ProviderConfigObject["logo"]>;
 
@@ -29,6 +30,7 @@ interface BuiltinProviderLogoAsset {
 
 // 这里只负责把 Config 中的资源 key 解析为打包素材；禁止加入 Provider ID、名称或排序逻辑。
 const BUILTIN_PROVIDER_LOGO_ASSETS: Readonly<Record<string, BuiltinProviderLogoAsset>> = {
+  aicyld: { light: aicyldLogo },
   // 用户指定 Dock 应用图标；同名旧 SVG 带灰色描边，不能当作同一素材复用。
   zai: { light: zaiLogo },
   bigmodel: { light: bigModelLogo },
