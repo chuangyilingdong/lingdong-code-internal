@@ -1495,6 +1495,10 @@ export function AutomationEditView({
         teamPlanFallbackLabel: intl.formatMessage({
           id: "settings.modelProvider.connectionMode.teamPlan",
         }),
+        aicyldTextModelLabel: intl.formatMessage({
+          id: "settings.modelProvider.builtin.title",
+        }),
+        onlyAicyldBuiltin: true,
       },
       registrySelectionView: modelSelectionView,
     });

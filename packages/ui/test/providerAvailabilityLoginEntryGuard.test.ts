@@ -2,6 +2,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useProviderAvailabilityLoginEntryGuard } from "@/root/useProviderAvailabilityLoginEntryGuard.js";
+import type { UserInfo } from "@zcode/shared";
 
 describe("useProviderAvailabilityLoginEntryGuard", () => {
   it("首次 Selection 读取失败结束启动等待且不伪装成无 Provider", async () => {
@@ -21,6 +22,35 @@ describe("useProviderAvailabilityLoginEntryGuard", () => {
 
     await waitFor(() => expect(result.current.startupCheckCompleted).toBe(true));
     expect(setLoginEntryOpen).not.toHaveBeenCalled();
+  });
+
+  it("已恢复登录用户不会因旧 providerFamilyDomain 为空重新打开登录页", async () => {
+    const setLoginEntryOpen = vi.fn();
+    const refreshedView = {
+      revision: 1,
+      providers: [
+        {
+          providerId: "aicyld-code",
+          config: { kind: "api" as const },
+          models: [{ modelId: "lingdong-code", config: {} }],
+        },
+      ],
+    };
+
+    const { result } = renderHook(() =>
+      useProviderAvailabilityLoginEntryGuard({
+        user: { id: "user-1", username: "Dnins" } as UserInfo,
+        isRestoringOAuthSession: false,
+        providerFamilyDomain: undefined,
+        modelSelectionView: refreshedView,
+        refreshProviderState: vi.fn(async () => {}),
+        readModelSelectionView: async () => refreshedView,
+        setLoginEntryOpen,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.startupCheckCompleted).toBe(true));
+    expect(setLoginEntryOpen).toHaveBeenCalledWith(false);
   });
 
   it("等待 Selection View 水合后再判断启动可用性", async () => {

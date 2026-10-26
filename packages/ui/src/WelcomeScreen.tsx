@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "./components/ui/alert.js";
 import { Button } from "./components/ui/button.js";
 import { Input } from "./components/ui/input.js";
 import { DesktopOverlayWindowControls } from "@/DesktopOverlayWindowControls.js";
+import { ZCodeAppLogo } from "@/components/mobile-ui/ZCodeAppLogo.js";
 import { useZCodeIntl } from "./i18n/IntlProvider.js";
 import { ThemeHeroVisual } from "./openWorkspacePageThemeHero.js";
 import { usePlatform } from "./hooks/usePlatform.js";
@@ -93,17 +94,8 @@ export function LoginPanel({ active, onComplete }: LoginPanelProps) {
   return (
     <>
       <header className="flex flex-col items-center gap-3 text-center">
-        <div
-          className="relative mb-1 flex size-16 items-center justify-center rounded-2xl bg-[linear-gradient(180deg,#09090b_0%,#18181b_100%)] text-ui-xl font-semibold text-white shadow-lg/20 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/10"
-          aria-label="灵动Code"
-          role="img"
-        >
-          灵
-        </div>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-3xl font-semibold tracking-tight">{intl.formatMessage({ id: "login.aicyld.title" })}</h1>
-          <p className="text-ui-base/relaxed text-foreground-subtle">{intl.formatMessage({ id: "login.aicyld.description" })}</p>
-        </div>
+        <ZCodeAppLogo className="mb-1 size-16" />
+        <h1 className="text-3xl font-semibold tracking-tight">{intl.formatMessage({ id: "login.aicyld.title" })}</h1>
       </header>
 
       <form className="flex flex-col gap-4" onSubmit={submit}>
@@ -177,9 +169,6 @@ export function LoginPanel({ active, onComplete }: LoginPanelProps) {
         >
           {intl.formatMessage({ id: "login.aicyld.register" })}
         </button>
-        <p className="text-ui-xs leading-relaxed text-foreground-subtlest">
-          {intl.formatMessage({ id: "login.aicyld.securityHint" })}
-        </p>
       </div>
     </>
   );

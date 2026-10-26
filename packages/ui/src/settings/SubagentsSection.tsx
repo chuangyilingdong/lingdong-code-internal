@@ -1365,6 +1365,10 @@ export function SubagentsSection({
       codingPlanLabel: intl.formatMessage({
         id: "settings.modelProvider.connectionMode.codingPlan",
       }),
+      aicyldTextModelLabel: intl.formatMessage({
+        id: "settings.modelProvider.builtin.title",
+      }),
+      onlyAicyldBuiltin: true,
     });
   }, [intl, modelSelectionView]);
   const subagentModelSelectGroups = chatModelSelectGroups;

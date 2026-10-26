@@ -438,17 +438,29 @@ export async function removeSuppressedBuiltinInFileConfig(
 }
 
 /**
- * Get default config file path
+ * Get default config file path.
+ *
+ * ZCODE_STORAGE_DIR is the runtime-owned storage root. When it is present, the
+ * user config must live below that root; otherwise an isolated desktop process
+ * would still read the legacy ~/.zcode/cli/config.json and inherit its MCP servers.
  */
-export function getDefaultConfigPath(): string {
-  return join(resolvePath(DEFAULT_BASE_DIR), DEFAULT_CONFIG_FILE);
+export function getDefaultConfigPath(
+  env: Record<string, string | undefined> = process.env,
+): string {
+  const storageDir = env.ZCODE_STORAGE_DIR?.trim();
+  const baseDir = storageDir
+    ? join(resolvePath(storageDir), "cli")
+    : resolvePath(DEFAULT_BASE_DIR);
+  return join(baseDir, DEFAULT_CONFIG_FILE);
 }
 
 /**
  * Check if config file exists at default location
  */
-export function hasDefaultConfigFile(): boolean {
-  return existsSync(getDefaultConfigPath());
+export function hasDefaultConfigFile(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return existsSync(getDefaultConfigPath(env));
 }
 
 async function readJsonConfigFile(filePath: string): Promise<Record<string, unknown>> {

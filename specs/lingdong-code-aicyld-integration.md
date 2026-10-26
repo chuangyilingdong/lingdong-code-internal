@@ -37,11 +37,12 @@
    - `POST /api/auth/sms/send`
    - `POST /api/auth/sms/login`
 3. 登录成功后保存 30 天 AICYLD JWT 和用户资料；启动时只按 JWT 本地过期时间恢复展示态。
-4. 用户可跳转主站注册、积分中心与充值页：
+4. 登录页的品牌标识复用全局灵动Code Logo，不在登录面板内单独绘制文字占位；登录页不展示“使用 AICYLD 账号与积分”和模型结算说明文案。
+5. 用户可跳转主站注册、积分中心与充值页：
    - `https://www.aicyld.com.cn/register`
    - `https://www.aicyld.com.cn/points`
    - `https://www.aicyld.com.cn/subscription?tab=recharge`
-5. 登出时清除 AICYLD 令牌、用户资料，并禁用自动维护的灵动Code Provider。
+6. 登出时清除 AICYLD 令牌、用户资料，并禁用自动维护的灵动Code Provider。
 
 ## 模型网关与结算
 
@@ -91,17 +92,25 @@ AICYLD 网关 -> 灵动Code: 原样返回模型响应
 - 不再展示 ZCode/Z.ai/BigModel 账号登录按钮、Coding Plan 购买/升级、Rewards、ZCode 订阅额度入口。
 - 外部模型 Provider 的通用配置能力可保留，但默认产品路径只展示 AICYLD 账号和灵动Code Provider。
 - 内部 `@zcode/*` 包名、协议字段和持久化 key 首期保留，避免破坏运行时与升级兼容；所有用户可见品牌文案改为“灵动Code”。
-- 启动加载、标题栏、欢迎空态、About、Web 远控等所有用户可见 Logo 统一使用灵动Code/AICYLD 资产，不再出现 ZCode 的 Z 标识。
+- 启动加载、标题栏、欢迎空态、About 等所有用户可见 Logo 统一使用灵动Code/AICYLD 资产，不再出现 ZCode 的 Z 标识。
 - 模型设置默认只展示 AICYLD 灵动 Code Provider；不展示 BigModel、Start Plan、Coding Plan、个人/团队套餐价格卡或订阅入口。
+- 模型设置只展示 AICYLD 内置文本模型，不提供添加、编辑或删除自定义供应商、API Key、Base URL、API 格式和模型列表的能力。
+- 聊天模型菜单只展示内置文本模型的用户可读名称，不把内部模型 ID 作为产品名称。
+- Agent 主会话、子智能体和工作流的模型可见身份文案统一使用“灵动Code”，不得再以 ZCode 自称。
 
 ## 验收
 
-- 未登录启动只显示 AICYLD 手机号验证码登录。
+- 未登录启动只显示 AICYLD 手机号验证码登录，品牌 Logo 与标题栏/启动页一致，且不展示已移除的账号积分说明与结算说明文案。
 - 验证码发送、登录、重启恢复、登出均使用 AICYLD 账号。
+- 已登录 AICYLD 用户重启后，即使旧 `providerFamilyDomain` 为空且内置模型可用，也不得重新显示登录页。
 - 侧栏显示 AICYLD 积分余额，充值/积分中心跳转正确。
 - 登录后模型请求经 AICYLD 网关完成，响应 usage 可在 usage 表追溯并扣减积分。
 - 上游失败不扣分；流式成功按最后 usage 帧结算；重复完成事件不重复扣分。
 - 设置中不再出现 ZCode 订阅、升级或 Rewards 入口。
 - 启动页、标题栏和欢迎空态不出现旧 ZCode Logo。
+- 托盘 tooltip、打开应用菜单和关于菜单统一显示灵动Code，不出现 ZCode 品牌。
 - 设置-模型设置中只出现 AICYLD 灵动 Code，不出现 BigModel/Start Plan/Coding Plan/套餐卡片。
-- Web 远控品牌文案显示“灵动Code”。
+- 主会话与子智能体的 system prompt 使用灵动Code 身份，模型被问及身份时不再回复“我是 ZCode”。
+- Web 分享页标题、继续入口和机器人帮助/状态文案统一显示灵动Code，不出现旧 ZCode 品牌。
+- 余额为 0 的新请求返回 402 且不调用上游；余额不足时实际扣分不超过可用余额，usage 标记为 `partial`，积分不得变为负数。
+- Web 手机远控不纳入本期实现、品牌和验收范围。

@@ -180,4 +180,51 @@ describe("model selection groups", () => {
       },
     ]);
   });
+  it("内置模型模式只投影 AICYLD 文本模型并使用产品展示名", () => {
+    const selectionView: ModelSelectionView = {
+      revision: 9,
+      providers: [
+        {
+          providerId: "aicyld-code",
+          templateId: "aicyld-code",
+          providerName: "AICYLD 灵动 Code",
+          config: {
+            access: { type: "api-key", apiKey: "secret" },
+            api: { type: "openai-chat-completions" },
+          },
+          models: [{ modelId: "lingdong-code", config: {} }],
+        },
+        {
+          providerId: "other-provider",
+          templateId: "other-provider",
+          providerName: "Other",
+          config: {
+            access: { type: "api-key", apiKey: "secret" },
+            api: { type: "openai-chat-completions" },
+          },
+          models: [{ modelId: "other-model", config: {} }],
+        },
+      ],
+    };
+
+    expect(
+      buildRegistryModelSelectGroups("glm", selectionView, {
+        onlyAicyldBuiltin: true,
+        aicyldTextModelLabel: "灵动Code 文本模型",
+      }),
+    ).toEqual([
+      {
+        key: "registry-provider:aicyld-code",
+        label: "AICYLD 灵动 Code",
+        labelBadge: "API",
+        items: [
+          {
+            key: "registry-provider:aicyld-code:lingdong-code",
+            value: "custom:aicyld-code:lingdong-code",
+            name: "灵动Code 文本模型",
+          },
+        ],
+      },
+    ]);
+  });
 });

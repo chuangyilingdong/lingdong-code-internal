@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const captured = vi.hoisted(() => ({
   template: [] as MenuItemConstructorOptions[],
+  tooltip: "",
 }));
 
 vi.mock("electron", () => ({
@@ -15,7 +16,9 @@ vi.mock("electron", () => ({
     },
   },
   Tray: class {
-    setToolTip() {}
+    setToolTip(value: string) {
+      captured.tooltip = value;
+    }
     setContextMenu() {}
     on() {}
   },
@@ -25,6 +28,7 @@ describe("desktop tray log export", () => {
   beforeEach(() => {
     vi.resetModules();
     captured.template = [];
+    captured.tooltip = "";
   });
 
   it.each(["win32", "linux"] as const)(
@@ -46,12 +50,16 @@ describe("desktop tray log export", () => {
       });
 
       const labels = () => captured.template.map((item) => item.label).filter(Boolean);
+      expect(labels()[0]).toBe("打开灵动Code");
+      expect(captured.tooltip).toBe("灵动Code");
       expect(labels()).not.toContain("清除所有数据");
-      expect(labels().slice(-3)).toEqual(["关于 ZCode", "导出日志", "退出"]);
+      expect(labels().slice(-3)).toEqual(["关于灵动Code", "导出日志", "退出"]);
       locale = "en-US";
       updateWindowsDesktopTrayMenu();
+      expect(labels()[0]).toBe("Open Lingdong Code");
+      expect(captured.tooltip).toBe("Lingdong Code");
       expect(labels()).not.toContain("Clear all data");
-      expect(labels().slice(-3)).toEqual(["About ZCode", "Export logs", "Quit"]);
+      expect(labels().slice(-3)).toEqual(["About Lingdong Code", "Export logs", "Quit"]);
 
       const item = captured.template.find((entry) => entry.label === "Export logs");
       expect(item?.click).toBeDefined();

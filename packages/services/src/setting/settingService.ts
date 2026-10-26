@@ -1,6 +1,5 @@
 import { readFile, mkdir, rename } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { homedir } from "node:os";
 import type {
   AppSettings,
   ProviderFamilyDomain,
@@ -14,7 +13,12 @@ import {
 } from "@zcode/shared";
 import type { ISettingService, WorkspaceSettingsProjection } from "./setting.js";
 import { normalizeSettingsPatch } from "#src/setting/normalizeSettingsPatch.js";
-import { copyDataDirectory, getDataBaseDir, validateDataBaseDirTarget } from "../paths.js";
+import {
+  copyDataDirectory,
+  getAppConfigDir,
+  getDataBaseDir,
+  validateDataBaseDirTarget,
+} from "../paths.js";
 import { isEffectiveDevelopmentNodeEnv } from "../runtime-tools/nodeEnv.js";
 import { maybeThrowInjectedFsFault } from "../fs/fsFaultInjection.js";
 import { atomicWriteText, withAtomicFileLock } from "../fs/atomicFileUtils.js";
@@ -40,16 +44,6 @@ const debugLog = (...args: unknown[]) => {
   }
   console.debug(formatLogPrefix("settingService", process.pid), ...args);
 };
-
-function resolveUserHomeDir() {
-  // 独立桌面 Dev 实例已设置自己的 home，设置服务却仍写真实 HOME，
-  // 导致启动迁移和外观操作污染其他实例。与 Electron 的显式 home 覆盖保持一致。
-  const envHome =
-    process.env.ZCODE_DESKTOP_HOME_DIR?.trim() ||
-    process.env.HOME?.trim() ||
-    process.env.USERPROFILE?.trim();
-  return envHome && envHome.length > 0 ? envHome : homedir();
-}
 
 function defaultSettings(): AppSettings {
   return appSettingsSchema.parse({});
@@ -209,6 +203,15 @@ async function writeSettingsAt(
   log("write done");
 }
 
+function resolveSettingsFile(): string {
+  const desktopHome = process.env.ZCODE_DESKTOP_HOME_DIR?.trim();
+  if (desktopHome) {
+    return join(desktopHome, ".zcode", "v2", "setting.json");
+  }
+  // 原因：设置文件与任务、Provider 必须共用同一个数据根，不能绕过 getAppConfigDir 直拼 HOME。
+  return join(getAppConfigDir(), "setting.json");
+}
+
 export function createSettingService(): ISettingService {
   return createSettingServiceWithMigrations().service;
 }
@@ -225,7 +228,7 @@ export function createSettingServiceWithMigrations(): {
 } {
   // 原因：每次 IO 动态读 HOME 会让旧异步投影写进后来实例的目录。
   // 在实例创建时取值，既支持测试/Host 注入，也让读取、文件锁与替换始终同源。
-  const settingsFile = join(resolveUserHomeDir(), ".zcode", "v2", "setting.json");
+  const settingsFile = resolveSettingsFile();
   const getSettingsFile = () => settingsFile;
   const getSettingsDir = () => dirname(settingsFile);
   const readSettingsWithMeta = () => readSettingsWithMetaAt(settingsFile);
@@ -368,7 +371,10 @@ export function createSettingServiceWithMigrations(): {
 
     async updateDataBaseDir(newDir: string | undefined): Promise<void> {
       const currentBaseDir = getDataBaseDir();
-      const targetBaseDir = newDir?.trim() || homedir();
+      const targetBaseDir =
+        newDir?.trim() ||
+        process.env.ZCODE_DATA_BASE_DIR?.trim() ||
+        getDataBaseDir();
       const validation = validateDataBaseDirTarget(targetBaseDir);
       if (!validation.ok) {
         // Windows 安装目录由安装器/自动更新管理，把 .zcode/v2 放进去可能在升级时被覆盖。

@@ -1,18 +1,19 @@
 # System Prompt Contract
 
-ZCode stable system prompt is the long-lived behavioral contract for the main
+灵动Code stable system prompt is the long-lived behavioral contract for the main
 coding agent. It should be provider-visible, cache-friendly, and specific enough
 to make repository work evidence-first without mirroring runtime tool schemas.
 
 ## Goals
 
-- Fix the agent identity to `zcode-agent`; callers must not compose identity
+- Fix the agent identity to the 灵动Code product identity; callers must not compose identity
   text through runtime agent metadata.
 - Make "read before deciding" the default behavior for repository tasks.
 - Define clear safety, validation, communication, and scope boundaries with
   concrete examples.
-- Keep stable prompt copy English-only so prompt behavior is consistent across
-  locales.
+- Keep stable prompt copy English-first so prompt behavior is consistent across
+  locales. The official product name `灵动Code` is the only required non-English
+  brand token.
 - Keep tool schemas, project instructions, skills, and current date outside the
   default system blocks; keep the static/global-cache body separate from the
   dynamic/org-cache body.
@@ -21,11 +22,11 @@ to make repository work evidence-first without mirroring runtime tool schemas.
 
 | Section              | Purpose                                                                                                                            |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Static Default Body  | ZCode role, authorized-security boundary, and compact harness guidance.                                                            |
+| Static Default Body  | 灵动Code role, authorized-security boundary, and compact harness guidance.                                                           |
 | Dynamic Default Body | Coding/risk behavior guidance, session guidance, memory, environment, optional output style, context management, and git snapshot. |
 
 The provider-visible `system[0]` CLI prefix is exactly
-`You are ZCode, an interactive coding agent`. The provider-visible static
+`You are 灵动Code (Lingdong Code), an interactive coding agent`. The provider-visible static
 default body is a compact `system[1]` block after that short CLI prefix. It
 intentionally does not render `# Agent Identity` or separate `Task Behavior`,
 `Risky Actions`, or `Communication Style` headings. The legacy `task_behavior`,
@@ -33,7 +34,7 @@ intentionally does not render `# Agent Identity` or separate `Task Behavior`,
 active context contract. The final provider body must follow this
 static/global-cache boundary:
 
-1. Short ZCode software-engineering-agent intro with no heading.
+1. Short 灵动Code software-engineering-agent intro with no heading.
 2. Authorized security boundary.
 3. `# Harness` section for terminal markdown, permission denial handling,
    system-controlled mid-conversation updates and hook feedback, dedicated tool
@@ -75,7 +76,7 @@ The output-style section is assembled exactly as
 `# Output Style: <name>\n<prompt>`, with no blank line between its heading and
 prompt body.
 
-Legacy ZCode `# Language`, `# Function Result Clearing`, and
+Legacy `# Language`, `# Function Result Clearing`, and
 `# Summarize Tool Results` sections are not emitted in this dynamic block. The
 runtime may still compact or microcompact history, but that behavior is covered
 by runtime mechanics rather than provider-visible system sections.
@@ -233,7 +234,7 @@ Required Explore prompt behavior:
   policy and the no-URL-fabrication rule.
 - Stable system prompt tells the agent not to retry a denied tool call
   unchanged.
-- Provider-visible static `system[1]` starts with the ZCode intro, uses compact
+- Provider-visible static `system[1]` starts with the 灵动Code intro, uses compact
   `# Harness`, and does not render `# Agent Identity` or the old `# Task Behavior`,
   `# Risky Actions`, or `# Communication Style` headings; it ends at the final
   `# Harness` bullet.

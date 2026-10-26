@@ -9,6 +9,10 @@ import type { ModelSelectionView } from "@zcode/services";
 import type { ModelSelectGroup } from "@/ModelConfigSelect.js";
 import { decodeCustomModelValue, encodeCustomModelValue } from "@/lib/zcodeCustomModelValue.js";
 import { shouldShowModelVisionBadge } from "@/lib/modelVisionBadge.js";
+import {
+  AICYLD_CODE_MODEL_ID,
+  AICYLD_CODE_PROVIDER_TEMPLATE_ID,
+} from "@/lib/aicyldBuiltinModel.js";
 
 export interface ModelProviderGroupLabelOptions {
   apiKeyLabel?: string;
@@ -19,6 +23,8 @@ export interface ModelProviderGroupLabelOptions {
   startPlanBadgeLabel?: string;
   teamPlanBadgeLabel?: string;
   teamPlanFallbackLabel?: string;
+  aicyldTextModelLabel?: string;
+  onlyAicyldBuiltin?: boolean;
 }
 
 function supportsRegistryApiFormat(
@@ -35,46 +41,59 @@ export function buildRegistryModelSelectGroups(
   view: ModelSelectionView,
   labels: ModelProviderGroupLabelOptions = {},
 ): ModelSelectGroup[] {
-  return view.providers.flatMap((provider) => {
-    if (!supportsRegistryApiFormat(selectedProvider, provider.config.api?.type)) {
-      return [];
-    }
+  return view.providers
+    .filter(
+      (provider) =>
+        !labels.onlyAicyldBuiltin || provider.templateId === AICYLD_CODE_PROVIDER_TEMPLATE_ID,
+    )
+    .flatMap((provider) => {
+      if (!supportsRegistryApiFormat(selectedProvider, provider.config.api?.type)) {
+        return [];
+      }
 
-    const accountAccess = zcodeProviderAccountAccessSchema.safeParse(provider.config.access);
-    const accountPresentation = accountAccess.success
-      ? getRegistryAccountProviderGroupPresentation(provider.providerId, accountAccess.data, labels)
-      : null;
-
-    // 合并菜单仍需区分同名供应商的接入方式；API 标识直接来自 access，不能从名称猜测。
-    const labelBadge =
-      accountPresentation?.labelBadge ??
-      (provider.config.access?.type === "api-key" ||
-      provider.config.access?.type === "zhipu-coding-plan-api-key"
-        ? (labels.apiKeyBadgeLabel ?? "API")
-        : undefined);
-
-    return [
-      {
-        key: `registry-provider:${provider.providerId}`,
-        label: accountPresentation?.label || provider.providerName?.trim() || provider.providerId,
-        ...(provider.config.logo ? { logo: provider.config.logo } : {}),
-        ...(labelBadge ? { labelBadge } : {}),
-        ...(accountPresentation ? { directItems: true } : {}),
-        items: provider.models.map(({ modelId, config }) => ({
-          key: `registry-provider:${provider.providerId}:${modelId}`,
-          value: encodeCustomModelValue(provider.providerId, modelId),
-          name: modelId,
-          ...(shouldShowModelVisionBadge(
-            modelId,
-            config.properties?.inputFormat?.supportsImage,
-            provider.config.access,
+      const accountAccess = zcodeProviderAccountAccessSchema.safeParse(provider.config.access);
+      const accountPresentation = accountAccess.success
+        ? getRegistryAccountProviderGroupPresentation(
+            provider.providerId,
+            accountAccess.data,
+            labels,
           )
-            ? { supportsVisionInput: true }
-            : {}),
-        })),
-      },
-    ];
-  });
+        : null;
+
+      // 合并菜单仍需区分同名供应商的接入方式；API 标识直接来自 access，不能从名称猜测。
+      const labelBadge =
+        accountPresentation?.labelBadge ??
+        (provider.config.access?.type === "api-key" ||
+        provider.config.access?.type === "zhipu-coding-plan-api-key"
+          ? (labels.apiKeyBadgeLabel ?? "API")
+          : undefined);
+
+      return [
+        {
+          key: `registry-provider:${provider.providerId}`,
+          label: accountPresentation?.label || provider.providerName?.trim() || provider.providerId,
+          ...(provider.config.logo ? { logo: provider.config.logo } : {}),
+          ...(labelBadge ? { labelBadge } : {}),
+          ...(accountPresentation ? { directItems: true } : {}),
+          items: provider.models.map(({ modelId, config }) => ({
+            key: `registry-provider:${provider.providerId}:${modelId}`,
+            value: encodeCustomModelValue(provider.providerId, modelId),
+            name:
+              provider.templateId === AICYLD_CODE_PROVIDER_TEMPLATE_ID &&
+              modelId === AICYLD_CODE_MODEL_ID
+                ? labels.aicyldTextModelLabel?.trim() || modelId
+                : modelId,
+            ...(shouldShowModelVisionBadge(
+              modelId,
+              config.properties?.inputFormat?.supportsImage,
+              provider.config.access,
+            )
+              ? { supportsVisionInput: true }
+              : {}),
+          })),
+        },
+      ];
+    });
 }
 
 function getRegistryAccountProviderGroupPresentation(

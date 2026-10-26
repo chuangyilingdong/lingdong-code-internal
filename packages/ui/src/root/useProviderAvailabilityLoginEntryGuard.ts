@@ -54,7 +54,9 @@ export function useProviderAvailabilityLoginEntryGuard({
         : modelSelectionView;
       const availability = resolveProviderAvailabilityState({ modelSelectionView: refreshedView });
       const { hasUsableProvider, providerCount } = availability;
-      const shouldOpenLoginEntry = !providerFamilyDomain || (!user && !hasUsableProvider);
+      // 原因：AICYLD 登录不写入旧 zai/bigmodel providerFamilyDomain，重启恢复后该字段为空。
+      // 旧条件会在 user 已恢复时仍强制打开登录页；登录门禁只应在未登录且无可用 Provider 时打开。
+      const shouldOpenLoginEntry = !user && (!providerFamilyDomain || !hasUsableProvider);
 
       // 未登录且没有可用模型配置时必须引导用户连接账号或填写 API Key。
       // 启动检查、API Key 设置回流等入口统一走这里，避免各处复制判断后语义分叉。

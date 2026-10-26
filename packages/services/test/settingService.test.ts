@@ -141,6 +141,7 @@ describe("settingService", () => {
   it("兼容集合只在锁内从目录派生，迟到的 UI 补丁不能带回删除的入口", async () => {
     const home = makeTempHome();
     process.env.HOME = home;
+    vi.resetModules();
     const { createSettingServiceWithMigrations } = await import("../src/setting/settingService.js");
     const owner = createSettingServiceWithMigrations();
     let paths = ["/retained"];

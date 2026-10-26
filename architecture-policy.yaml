@@ -913,6 +913,12 @@ exceptions:
       - packages/ui/src/lib/providerFamilyConnectionTransition.ts
       - packages/ui/src/prompt-editor/useComposerToolbarFit.ts
     reason: Composer model, provider and toolbar files reached staging without the MR architecture gate running; adopting the packages/ui composer toolbar needs a separate module boundary refactor.
+  - id: lingdong-builtin-model-unmanaged-files
+    rule: unmanaged-new-file
+    paths:
+      - packages/ui/src/lib/aicyldBuiltinModel.ts
+      - packages/ui/src/settings/LingdongBuiltinModelSection.tsx
+    reason: 灵动Code 内置模型展示与常量仅属于既有未受管 ui 展示层；接管整个 ui 包不在本次产品边界内，不新增服务或状态所有权。
   - id: provider-endpoint-routing-unmanaged-edit
     rule: unmanaged-new-file
     paths:

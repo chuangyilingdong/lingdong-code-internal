@@ -55,13 +55,11 @@ import {
   consumePendingSettingsPluginOrigin,
   consumePendingSettingsPluginScopeKey,
   consumePendingSettingsPluginTab,
-  consumePendingSettingsModelProviderTarget,
   consumePendingSettingsUsageTab,
   resolveSettingsSection,
   setPendingSettingsSectionIntent,
   shouldFallbackSettingsUsageTabToApp,
   writeLastSettingsSectionPreference,
-  type SettingsModelProviderTarget,
 } from "@/lib/settingsNavigation.js";
 import { readSidebarUsageCodingPlanSourcePreference } from "@/lib/sidebarUsageCodingPlanProviderPreference.js";
 import {
@@ -71,7 +69,7 @@ import {
 import { buildUsageEntitlementCacheKey } from "@/lib/usageEntitlementCache.js";
 import { ArchiveManagement, useOptionalProjectDirectory } from "@/project-sidebar/index.js";
 import { resolveRecentRemoteProjectPreference } from "@/project-sidebar/remote-project-connection.js";
-import { ModelProviderSection } from "@/settings/ModelProviderSection.js";
+import { LingdongBuiltinModelSection } from "@/settings/LingdongBuiltinModelSection.js";
 import { useEnterpriseCodingPlanProducts } from "@/settings/model-provider-section/useEnterpriseCodingPlanProducts.js";
 import { UsageStatsSection, type UsageStatsSectionTab } from "@/settings/UsageStatsSection.js";
 import {
@@ -113,7 +111,6 @@ import type { AppToolSearchMode } from "@zcode/shared";
 import { useSettings } from "@/hooks/useSettingService.js";
 import type { CreateTaskRequest, RemoteConnectionOpenPreference } from "@/app-shell/types.js";
 import { useBaseWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
-import { resolveModelProviderConnectivityWorkspacePath } from "@/lib/modelProviderConnectivityTarget.js";
 import {
   createSettingsPageConfig,
   GeneralSectionContent,
@@ -626,10 +623,6 @@ export function SettingsPage({
     checkingUsageBigmodelCodingPlanTab ||
     usageBigmodelEnterpriseProducts.loading ||
     usageZaiEnterpriseProducts.loading;
-  const [initialModelProviderTarget] = useState(() => consumePendingSettingsModelProviderTarget());
-  const [pendingModelProviderTarget, setPendingModelProviderTarget] = useState<
-    SettingsModelProviderTarget | undefined
-  >(() => initialModelProviderTarget);
   const handleUsageTabSelect = useCallback((tab: UsageStatsSectionTab) => {
     setUsageActiveTab(tab);
   }, []);
@@ -710,21 +703,6 @@ export function SettingsPage({
       null
     );
   });
-  const localModelProviderConnectivityWorkspacePath = useMemo(
-    () =>
-      resolveModelProviderConnectivityWorkspacePath({
-        activeWorkspacePath,
-        activeWorkspaceIdentity,
-        activeWorkspaceTab,
-        workspaceTabs,
-      }),
-    [activeWorkspaceIdentity, activeWorkspacePath, activeWorkspaceTab, workspaceTabs],
-  );
-  const isRemoteModelProviderWorkspace = Boolean(
-    activeWorkspaceIdentity?.trim() ||
-    activeWorkspaceTab?.remoteSessionId?.trim() ||
-    activeWorkspaceTab?.remoteTarget,
-  );
   const selectDirectory = useSelectDirectory();
   const services = useServices();
   const onboardingRecordService = services.onboardingRecordService;
@@ -847,11 +825,6 @@ export function SettingsPage({
           setPluginScopeKey(detail.pluginScopeKey);
         } else if (resolveSettingsSection(section) !== "plugin") {
           setPluginNavigationOrigin(undefined);
-        }
-        if (section === "modelProvider" && detail?.modelProviderId) {
-          setPendingModelProviderTarget({
-            providerId: detail.modelProviderId,
-          });
         }
       }),
     [activeSection, setActiveSettingsSection],
@@ -2063,17 +2036,7 @@ export function SettingsPage({
                           ) : activeSection === "modelProvider" ? (
                             <ServiceProvider services={localHostServices}>
                               {/* 模型配置属于本机全局事实源；激活远端 workspace 时也不能注入远端 Host。 */}
-                              <ModelProviderSection
-                                workspacePath={activeWorkspacePath ?? captionWorkspacePath ?? ""}
-                                connectivityWorkspacePath={
-                                  localModelProviderConnectivityWorkspacePath
-                                }
-                                connectivityWorkspaceRequired={isRemoteModelProviderWorkspace}
-                                pendingModelProviderTarget={pendingModelProviderTarget}
-                                onConsumePendingModelProviderTarget={() =>
-                                  setPendingModelProviderTarget(undefined)
-                                }
-                              />
+                              <LingdongBuiltinModelSection />
                             </ServiceProvider>
                           ) : activeSection === "memory" ? (
                             <ServiceProvider services={localHostServices}>

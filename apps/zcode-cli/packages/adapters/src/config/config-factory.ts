@@ -121,7 +121,7 @@ export interface PluginConfigSources {
  *
  * Priority (lowest to highest):
  * 1. System defaults
- * 2. User config file (~/.zcode/cli/config.json)
+ * 2. User config file (<ZCODE_STORAGE_DIR>/cli/config.json or ~/.zcode/cli/config.json)
  * 3. Project config files (root to cwd, then explicit projectConfigPath)
  * 4. Environment variables (ZCODE_*)
  * 5. CLI overrides
@@ -133,9 +133,10 @@ export function createConfig(options: ConfigFactoryOptions = {}): ConfigResult {
   ];
 
   // 2. User config file
+  const userConfigPath = options.userConfigPath ?? getDefaultConfigPath(options.env);
   const userConfigResult: LoadedConfig = options.skipUserConfig
-    ? { config: {}, diagnostics: [], path: getDefaultConfigPath(), loaded: false }
-    : loadFileConfig(options.userConfigPath);
+    ? { config: {}, diagnostics: [], path: userConfigPath, loaded: false }
+    : loadFileConfig(userConfigPath);
 
   if (userConfigResult.loaded) {
     configs.push(

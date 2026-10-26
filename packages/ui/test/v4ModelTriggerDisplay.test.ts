@@ -169,4 +169,30 @@ describe("resolveV4ModelTriggerDisplay", () => {
       modelLabel: "GLM-5.2",
     });
   });
+  it("AICYLD 内置模型只显示产品名称，不展示内部 Provider 或模型 ID", () => {
+    const group: ModelSelectGroup = {
+      key: "registry-provider:aicyld-code",
+      label: "AICYLD 灵动 Code",
+      items: [
+        {
+          key: "registry-provider:aicyld-code:lingdong-code",
+          value: "custom:aicyld-code:lingdong-code",
+          name: "灵动Code 文本模型",
+        },
+      ],
+    };
+
+    expect(
+      resolveV4ModelTriggerDisplay({
+        modelGroups: [group],
+        normalizedValue: "custom:aicyld-code:lingdong-code",
+        fallbackLabel: "选择模型",
+        providerId: "aicyld-code",
+        providerName: "AICYLD 灵动 Code",
+      }),
+    ).toEqual({
+      fullLabel: "灵动Code 文本模型",
+      modelLabel: "灵动Code 文本模型",
+    });
+  });
 });

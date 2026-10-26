@@ -82,7 +82,7 @@ describe("ConversationShareLandingPage", () => {
     expect(html).toContain('data-share-header-ready="false"');
     expect(html).toContain('data-share-continue-visible="true"');
     expect(html).toContain("请生成一个文件");
-    expect(html).toContain("去 ZCode 继续");
+    expect(html).toContain("去 灵动Code 继续");
     expect(html).toContain('data-share-theme-toggle="true"');
     expect(html).toContain("切换到深色主题");
     expect(html.match(/href="zcode:\/\/share\/import\?code=share-1"/g)?.length).toBe(2);
@@ -264,7 +264,7 @@ describe("ConversationShareLandingPage", () => {
       );
       expect(html).toContain(hint);
       expect(html).toContain(home);
-      expect(html).toContain('href="https://zcode.z.ai"');
+      expect(html).toContain('href="https://www.aicyld.com.cn"');
       expect(html).not.toContain('target="_blank"');
     },
   );

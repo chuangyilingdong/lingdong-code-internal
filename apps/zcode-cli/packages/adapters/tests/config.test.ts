@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createConfig, updateUiLocaleInFileConfig } from "../src/config/index.js";
+import { createConfig, getDefaultConfigPath, updateUiLocaleInFileConfig } from "../src/config/index.js";
 import { parseEnvConfig } from "../src/config/env-config.adapter.js";
 import {
   addSuppressedBuiltinInFileConfig,
@@ -14,6 +14,55 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 describe("config adapters", () => {
+  it("resolves the default user config under ZCODE_STORAGE_DIR", () => {
+    const storageDir = join(tmpdir(), "lingdong-isolated-storage");
+
+    expect(getDefaultConfigPath({ ZCODE_STORAGE_DIR: storageDir })).toBe(
+      join(storageDir, "cli", "config.json"),
+    );
+  });
+
+  it("loads user MCP config only from ZCODE_STORAGE_DIR", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "zcode-config-isolated-storage-"));
+    const storageDir = join(dir, ".zcode");
+    const configPath = join(storageDir, "cli", "config.json");
+
+    try {
+      await mkdir(join(storageDir, "cli"), { recursive: true });
+      await writeFile(
+        configPath,
+        JSON.stringify({
+          mcp: {
+            servers: {
+              isolated: { type: "stdio", command: "node", args: ["isolated-mcp.mjs"] },
+            },
+          },
+        }),
+      );
+
+      const result = createConfig({ env: { ZCODE_STORAGE_DIR: storageDir } });
+
+      expect(result.sources.user.path).toBe(configPath);
+      expect(result.sources.user.loaded).toBe(true);
+      expect(result.sources.mcp.serverSources.isolated).toBe("user");
+      expect(result.config.mcp?.servers?.isolated).toMatchObject({
+        type: "stdio",
+        command: "node",
+      });
+    } finally {
+      await rm(dir, { force: true, recursive: true });
+    }
+  });
+
+  it("does not fall back to the home config when the isolated storage config is absent", () => {
+    const storageDir = join(tmpdir(), "lingdong-empty-isolated-storage");
+    const result = createConfig({ env: { ZCODE_STORAGE_DIR: storageDir } });
+
+    expect(result.sources.user.path).toBe(join(storageDir, "cli", "config.json"));
+    expect(result.sources.user.loaded).toBe(false);
+    expect(result.sources.mcp.serverSources).toEqual({});
+  });
+
   it("migrates the legacy official CUA plugin id to the canonical id", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-config-cua-identity-"));
     const configPath = join(dir, "config.json");
