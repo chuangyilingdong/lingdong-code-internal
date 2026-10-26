@@ -58,6 +58,8 @@ interface UseModelProviderNavigationOptions {
   familyConnectionSettingsFailed?: boolean;
   subscribedTeamProducts?: EnterpriseCodingPlanProductDisplay[];
   showPurchasedTeamPlanFallback?: boolean;
+  /** 关闭后仅展示自定义/产品 Provider，不再渲染 Z.ai、BigModel 及其套餐入口。 */
+  includeAccountProviders?: boolean;
   selectedNodeKey: string | null;
   setSelectedNodeKey: (key: string | null) => void;
   intl: ReturnType<typeof useZCodeIntl>["intl"];
@@ -77,6 +79,7 @@ export function useModelProviderNavigation({
   familyConnectionSettingsFailed = false,
   subscribedTeamProducts = [],
   showPurchasedTeamPlanFallback = false,
+  includeAccountProviders = true,
   selectedNodeKey,
   setSelectedNodeKey,
   intl,
@@ -89,58 +92,64 @@ export function useModelProviderNavigation({
     return sortModelProvidersForDisplay(allCustomProviders, displayOrder);
   }, [displayOrder, modelProviders]);
 
+  const visibleCodingPlanSpecs = useMemo(
+    () => (includeAccountProviders ? CODING_PLAN_PROVIDER_SPECS : []),
+    [includeAccountProviders],
+  );
   const codingPlanItems = useMemo(
     () =>
-      CODING_PLAN_PROVIDER_SPECS.filter((spec) =>
-        shouldShowCodingPlanForProviderFamilyDomain(spec.oauthProviderId, providerFamilyDomain),
-      ).map((spec) => {
-        const provider = modelProviders.find((item) => item.providerId === spec.id) ?? null;
-        const accountEntitled = entitledAccountProviderIds.has(spec.id);
-        const entitlementProvider = pickCodingPlanEntitlementProvider(provider);
-        const entitlement = codingPlanEntitlements[spec.id];
-        const state = resolveCodingPlanEntitlementState({
-          providerId: spec.id,
-          accountEntitled,
-          accountAvailability: provider?.accountState?.availability,
-          accountUnavailableReason: provider?.accountState?.unavailableReason,
-          entitlement,
-          modelProvidersLoading,
-        });
+      visibleCodingPlanSpecs
+        .filter((spec) =>
+          shouldShowCodingPlanForProviderFamilyDomain(spec.oauthProviderId, providerFamilyDomain),
+        )
+        .map((spec) => {
+          const provider = modelProviders.find((item) => item.providerId === spec.id) ?? null;
+          const accountEntitled = entitledAccountProviderIds.has(spec.id);
+          const entitlementProvider = pickCodingPlanEntitlementProvider(provider);
+          const entitlement = codingPlanEntitlements[spec.id];
+          const state = resolveCodingPlanEntitlementState({
+            providerId: spec.id,
+            accountEntitled,
+            accountAvailability: provider?.accountState?.availability,
+            accountUnavailableReason: provider?.accountState?.unavailableReason,
+            entitlement,
+            modelProvidersLoading,
+          });
 
-        return {
-          key: createCodingPlanProviderNodeKey(spec.id),
-          type: "codingPlan" as const,
-          presetId: spec.id,
-          oauthProviderId: spec.oauthProviderId,
-          label: isStartPlanModelProviderId(spec.id)
-            ? "Start Plan"
-            : `${spec.providerName} - ${intl.formatMessage({
-                id: "settings.modelProvider.connectionMode.codingPlan",
-              })}`,
-          providerName: spec.providerName,
-          provider: entitlementProvider,
-          accountEntitled,
-          status: state.status,
-          statusLabelId: state.statusLabelId,
-          ...(isStartPlanModelProviderId(spec.id) &&
-          entitlement?.snapshot?.unavailableReason === "not_authenticated"
-            ? {
-                accountLoginRequired: true,
-                statusLabelId: "settings.modelProvider.startPlan.status.loginExpired",
-              }
-            : {}),
-          planLevel: state.planLevel,
-          currentProductId: state.currentProductId,
-          subscriptionBillingCycle: state.subscriptionBillingCycle,
-          subscriptionRenewTime: state.subscriptionRenewTime,
-          subscriptionExpireTime: state.subscriptionExpireTime,
-          subscriptionDetails: state.subscriptionDetails,
-          quotaLimits: state.quotaLimits,
-          mcpQuotaLimit: state.mcpQuotaLimit ?? null,
-          purchaseUrl: spec.purchaseUrl,
-          statusActive: entitlementProvider?.executable === true,
-        };
-      }),
+          return {
+            key: createCodingPlanProviderNodeKey(spec.id),
+            type: "codingPlan" as const,
+            presetId: spec.id,
+            oauthProviderId: spec.oauthProviderId,
+            label: isStartPlanModelProviderId(spec.id)
+              ? "Start Plan"
+              : `${spec.providerName} - ${intl.formatMessage({
+                  id: "settings.modelProvider.connectionMode.codingPlan",
+                })}`,
+            providerName: spec.providerName,
+            provider: entitlementProvider,
+            accountEntitled,
+            status: state.status,
+            statusLabelId: state.statusLabelId,
+            ...(isStartPlanModelProviderId(spec.id) &&
+            entitlement?.snapshot?.unavailableReason === "not_authenticated"
+              ? {
+                  accountLoginRequired: true,
+                  statusLabelId: "settings.modelProvider.startPlan.status.loginExpired",
+                }
+              : {}),
+            planLevel: state.planLevel,
+            currentProductId: state.currentProductId,
+            subscriptionBillingCycle: state.subscriptionBillingCycle,
+            subscriptionRenewTime: state.subscriptionRenewTime,
+            subscriptionExpireTime: state.subscriptionExpireTime,
+            subscriptionDetails: state.subscriptionDetails,
+            quotaLimits: state.quotaLimits,
+            mcpQuotaLimit: state.mcpQuotaLimit ?? null,
+            purchaseUrl: spec.purchaseUrl,
+            statusActive: entitlementProvider?.executable === true,
+          };
+        }),
     [
       entitledAccountProviderIds,
       codingPlanEntitlements,
@@ -148,6 +157,7 @@ export function useModelProviderNavigation({
       modelProviders,
       modelProvidersLoading,
       providerFamilyDomain,
+      visibleCodingPlanSpecs,
     ],
   );
   const connectionModeCodingPlanItems = useMemo(
@@ -223,7 +233,7 @@ export function useModelProviderNavigation({
       },
     ];
 
-    return groups;
+    return groups.filter((group) => includeAccountProviders || group.id !== "preset");
   }, [
     customProviders,
     codingPlanItems,
@@ -233,6 +243,7 @@ export function useModelProviderNavigation({
     intl,
     connectionSelections,
     pendingConnectionSelections,
+    includeAccountProviders,
     presetProviders,
     modelProviders,
   ]);
@@ -287,6 +298,7 @@ export function useModelProviderNavigation({
       : null;
   const requestedSelection = requestedFamily ? connectionSelections[requestedFamily.id] : undefined;
   const navigationUnavailable =
+    includeAccountProviders &&
     !modelProvidersLoading &&
     !familyConnectionSettingsLoading &&
     (familyConnectionSettingsFailed ||

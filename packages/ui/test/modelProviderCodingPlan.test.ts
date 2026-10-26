@@ -74,6 +74,46 @@ import { type ModelProviderNavGroup } from "@/settings/model-provider-section/co
 import type { ModelProviderNavItem } from "@/settings/model-provider-section/constants.js";
 import type { ProviderSettingsView } from "@zcode/services";
 
+it("AICYLD-only 产品面隐藏预置账号 Provider 与 Coding Plan", () => {
+  let captured: ReturnType<typeof useModelProviderNavigation> | undefined;
+  const aicyld = createProvider({
+    providerId: "aicyld-code",
+    name: "AICYLD 灵动 Code",
+    models: ["lingdong-code"],
+    config: { group: "standard-personal" },
+  });
+
+  function Harness() {
+    captured = useModelProviderNavigation({
+      presetProviders: [
+        {
+          id: BUILTIN_MODEL_PROVIDER_IDS.zaiStartPlan,
+          displayName: "Z.ai",
+          provider: null,
+        },
+        {
+          id: BUILTIN_MODEL_PROVIDER_IDS.bigmodelStartPlan,
+          displayName: "BigModel",
+          provider: null,
+        },
+      ],
+      modelProviders: [aicyld],
+      providerFamilyDomain: "bigmodel",
+      includeAccountProviders: false,
+      selectedNodeKey: null,
+      setSelectedNodeKey: vi.fn(),
+      intl: { formatMessage: ({ id }: { id: string }) => id } as never,
+    });
+    return createElement("div");
+  }
+
+  renderToStaticMarkup(createElement(Harness));
+
+  expect(captured?.navigationGroups.map((group) => group.id)).toEqual(["custom"]);
+  expect(captured?.navigationItems.map((item) => item.type)).toEqual(["custom"]);
+  expect(captured?.navigationItems[0]).toMatchObject({ provider: { providerId: "aicyld-code" } });
+});
+
 it("付费下拉按完整保存选择显示团队，不读取复制的个人 current", () => {
   const provider = createProvider({ id: BUILTIN_MODEL_PROVIDER_IDS.bigmodelIndividualCodingPlan });
   provider.accountState = { availability: "available", entitled: true, current: false };

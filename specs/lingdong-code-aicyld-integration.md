@@ -91,6 +91,8 @@ AICYLD 网关 -> 灵动Code: 原样返回模型响应
 - 不再展示 ZCode/Z.ai/BigModel 账号登录按钮、Coding Plan 购买/升级、Rewards、ZCode 订阅额度入口。
 - 外部模型 Provider 的通用配置能力可保留，但默认产品路径只展示 AICYLD 账号和灵动Code Provider。
 - 内部 `@zcode/*` 包名、协议字段和持久化 key 首期保留，避免破坏运行时与升级兼容；所有用户可见品牌文案改为“灵动Code”。
+- 启动加载、标题栏、欢迎空态、About、Web 远控等所有用户可见 Logo 统一使用灵动Code/AICYLD 资产，不再出现 ZCode 的 Z 标识。
+- 模型设置默认只展示 AICYLD 灵动 Code Provider；不展示 BigModel、Start Plan、Coding Plan、个人/团队套餐价格卡或订阅入口。
 
 ## 验收
 
@@ -100,3 +102,6 @@ AICYLD 网关 -> 灵动Code: 原样返回模型响应
 - 登录后模型请求经 AICYLD 网关完成，响应 usage 可在 usage 表追溯并扣减积分。
 - 上游失败不扣分；流式成功按最后 usage 帧结算；重复完成事件不重复扣分。
 - 设置中不再出现 ZCode 订阅、升级或 Rewards 入口。
+- 启动页、标题栏和欢迎空态不出现旧 ZCode Logo。
+- 设置-模型设置中只出现 AICYLD 灵动 Code，不出现 BigModel/Start Plan/Coding Plan/套餐卡片。
+- Web 远控品牌文案显示“灵动Code”。
